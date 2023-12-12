@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {AiOutlinePlus} from 'react-icons/ai'
 import TodoLi from './TodoLi'
-import {db} from '../firebasae'
+import {auth, db} from '../firebasae'
 import {
     query,
     collection,
@@ -11,10 +11,12 @@ import {
     addDoc,
     deleteDoc,
   } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { signOut } from 'firebase/auth';
 const Todo = () => {
     const [todos , setTodos] = useState([])
     const [input, setInput] = useState('')
-
+    const [user] = useAuthState(auth);
    
 
     const createTodo =async(e)=>{
@@ -61,6 +63,15 @@ const Todo = () => {
       text: newText,
     });
   };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // You can perform additional actions after logout if needed
+    } catch (error) {
+      console.error('Error logging out:', error.message);
+    }
+  };
   return (
     <div className='bg-gradient-to-b from-emerald-500 to-blue-800 flex items-center justify-center min-h-screen pt-4 px-4 pb-10 text-center sm:block sm:p-0  h-screen w-full '>
         <div className=' inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full '>
@@ -77,8 +88,11 @@ const Todo = () => {
         <TodoLi key={index} todo={todo} toggleComplete={toggleComplete} deleteTodo={deleteTodo} editTodo={editTodo} />
       ))}
             </ul>
+            <div className='flex items-center gap-4 justify-center'>
             {todos.length < 1 ? null: <p className='text-center py-3'>You Have {todos.length} Todos</p>}
-            
+            <button onClick={handleLogout} className='bg-gradient-to-b from-emerald-500 to-blue-800 rounded-full text-white font-bold px-6 flex justify-center py-2'>Logout</button>
+
+            </div>
             
         </div>
     </div>  
